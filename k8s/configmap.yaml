@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: msvc-usuarios
+data:
+  db_host: mysql8
+  db_name: msvc_usuarios
+  msvc_cursos_host: msvc-cursos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: msvc-cursos
+data:
+  db_name: msvc_cursos
+  spring_profile: docker
