@@ -81,7 +81,7 @@ public class UsuarioController {
                     catch(FeignException ex) {
                         ex.printStackTrace();
                         return ResponseEntity.internalServerError().body(Collections.singletonMap("mensaje",
-                                String.format("Error de conexión con del microservicio usuarios. Hable con el administrador")));
+                                String.format("Error de conexión con el microservicio cursos. Hable con el administrador")));
                     }
                 })
                 .orElse(new ResponseEntity<>(Collections.singletonMap("mensaje",
