@@ -33,7 +33,7 @@ public class CursoServiceImpl implements CursoService {
     }
 
     @Override
-    public Optional<Curso> obtenerPorIdConUsuarios(Long id) {
+    public Optional<Curso> obtenerPorIdConUsuarios(Long id, String authorizationHeader) {
         return obtenerPorId(id)
                 .map(curso -> {
                     final List<CursoUsuario> cursoUsuarios = curso.getCursoUsuarios();
@@ -42,7 +42,7 @@ public class CursoServiceImpl implements CursoService {
                                 // Versión simplificada de la expresión "usuario -> usuario.getUsuarioId()"
                                 .map(CursoUsuario::getUsuarioId)
                                 .collect(Collectors.toList());
-                        List<Usuario> usuarios = usuarioClientRest.obtenerUsuariosPorIds(idsUsuarios);
+                        List<Usuario> usuarios = usuarioClientRest.obtenerUsuariosPorIds(idsUsuarios, authorizationHeader);
                         curso.setUsuarios(usuarios);
                     }
                     return curso;
@@ -72,10 +72,10 @@ public class CursoServiceImpl implements CursoService {
     }
 
     @Override
-    public Optional<Curso> asignarUsuario(Long cursoId, Long usuarioId) {
+    public Optional<Curso> asignarUsuario(Long cursoId, Long usuarioId, String authorizationHeader) {
         return obtenerPorId(cursoId)
                 .map(curso -> {
-                    Usuario usuario = usuarioClientRest.obtenerUsuario(usuarioId);
+                    Usuario usuario = usuarioClientRest.obtenerUsuario(usuarioId, authorizationHeader);
                     CursoUsuario cursoUsuario = new CursoUsuario();
                     cursoUsuario.setUsuarioId(usuario.getId());
                     curso.addUsuario(cursoUsuario);
@@ -85,11 +85,11 @@ public class CursoServiceImpl implements CursoService {
     }
 
     @Override
-    public Optional<Usuario> crearUsuario(Usuario usuario, Long cursoId) {
+    public Optional<Usuario> crearUsuario(Usuario usuario, Long cursoId, String authorizationHeader) {
         Optional<Curso> oCurso = obtenerPorId(cursoId);
         if(oCurso.isPresent()) {
             Curso curso = oCurso.get();
-            Usuario nuevoUsuario = usuarioClientRest.crearUsuario(usuario);
+            Usuario nuevoUsuario = usuarioClientRest.crearUsuario(usuario, authorizationHeader);
             CursoUsuario cursoUsuario = new CursoUsuario();
             cursoUsuario.setUsuarioId(nuevoUsuario.getId());
             curso.addUsuario(cursoUsuario);

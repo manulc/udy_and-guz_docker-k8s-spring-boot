@@ -16,7 +16,7 @@ RUN ./mvnw dependency:go-offline
 # sin tener en cuenta la caché de capas de Docker
 COPY ./$MSVC_NAME/src src
 RUN ./mvnw clean package -DskipTests && \
-    java -Djarmode=layertools -jar target/msvc-usuarios-*-SNAPSHOT.jar extract
+    java -Djarmode=layertools -jar target/$MSVC_NAME-*-SNAPSHOT.jar extract
 
 # STAGE 2
 FROM eclipse-temurin:17-jre-alpine

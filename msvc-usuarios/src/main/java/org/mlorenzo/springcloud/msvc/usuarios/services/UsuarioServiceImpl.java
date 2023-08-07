@@ -4,6 +4,7 @@ import org.mlorenzo.springcloud.msvc.usuarios.client.CursoClientRest;
 import org.mlorenzo.springcloud.msvc.usuarios.entities.Usuario;
 import org.mlorenzo.springcloud.msvc.usuarios.exceptions.EmailExistsException;
 import org.mlorenzo.springcloud.msvc.usuarios.repositories.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +14,13 @@ import java.util.Optional;
 public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final CursoClientRest cursoClientRest;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, CursoClientRest cursoClientRest) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, CursoClientRest cursoClientRest,
+                              PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.cursoClientRest = cursoClientRest;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -44,6 +48,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         final String email = usuario.getEmail();
         if(obtenerPorEmail(email).isPresent())
             throw new EmailExistsException(String.format("El email %s ya existe", email));
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return usuarioRepository.save(usuario);
     }
 
@@ -52,10 +57,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         final String email = usuario.getEmail();
         return obtenerPorId(id)
                 .map(usuarioDB -> {
-                    System.out.println(email + " " + usuarioDB.getEmail());
                     if(!email.equals(usuarioDB.getEmail()) && obtenerPorEmail(email).isPresent())
                         throw new EmailExistsException(String.format("El email %s ya existe", email));
                     usuario.setId(usuarioDB.getId());
+                    usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
                     return usuarioRepository.save(usuario);
                 });
     }
@@ -71,8 +76,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     // Primera opción válida
     @Override
     public void eliminar(Usuario usuario) {
-        usuarioRepository.delete(usuario);
         cursoClientRest.eliminarCursoUsuarioPorId(usuario.getId());
+        usuarioRepository.delete(usuario);
     }
 
     // Segunda opción válida

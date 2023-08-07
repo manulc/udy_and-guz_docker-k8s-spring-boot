@@ -33,9 +33,10 @@ public class CursoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> detalle(@PathVariable Long id) {
+    public ResponseEntity<?> detalle(@PathVariable Long id,
+                                     @RequestHeader(value = "Authorization") String authorizationHeader) {
         try {
-            return cursoService.obtenerPorIdConUsuarios(id)
+            return cursoService.obtenerPorIdConUsuarios(id, authorizationHeader)
                     // Versión simplificada de la expresión "curso -> ResponseEntity.ok(curso)"
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
@@ -76,10 +77,10 @@ public class CursoController {
     // "handleFeignExceptionResponse" puede devolver un objeto "ResponseEntity" con una representación de un Json
     // como String. Entonces, para esos casos, queremos renderizar ese tring como un Json.
     @PatchMapping(value = "/{id}/asignar-usuario/{usuarioId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> asignarUsuario(@PathVariable(name = "id") Long cursoId,
-                                                              @PathVariable Long usuarioId) {
+    public ResponseEntity<?> asignarUsuario(@PathVariable(name = "id") Long cursoId, @PathVariable Long usuarioId,
+                                            @RequestHeader(name = "Authorization") String authorizationHeader) {
         try {
-            return cursoService.asignarUsuario(cursoId, usuarioId)
+            return cursoService.asignarUsuario(cursoId, usuarioId,authorizationHeader)
                     .map(curso -> ResponseEntity.ok(Collections.singletonMap("mensaje",
                             String.format("El usuario con id %d ha sido asignado al curso con id %d correctamente",
                                     usuarioId, cursoId))))
@@ -95,9 +96,10 @@ public class CursoController {
     // "handleFeignExceptionResponse" puede devolver un objeto "ResponseEntity" con una representación de un Json
     // como String. Entonces, para esos casos, queremos renderizar ese tring como un Json.
     @PostMapping(value = "/{id}/crear-usuario", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> crearUsuario(@RequestBody Usuario usuario, @PathVariable(value = "id") Long cursoId) {
+    public ResponseEntity<?> crearUsuario(@RequestBody Usuario usuario, @PathVariable(value = "id") Long cursoId,
+                                          @RequestHeader(value = "Authorization") String authorizationHeader) {
         try {
-            Optional<Usuario> oUsuario = cursoService.crearUsuario(usuario, cursoId);
+            Optional<Usuario> oUsuario = cursoService.crearUsuario(usuario, cursoId, authorizationHeader);
             if(oUsuario.isPresent()) {
                 return ResponseEntity.created(null).body(oUsuario.get());
             }
@@ -149,7 +151,7 @@ public class CursoController {
             default: {
                 ex.printStackTrace();
                 return ResponseEntity.internalServerError().body(Collections.singletonMap("mensaje",
-                        String.format("Error de conexión con del microservicio usuarios. Hable con el administrador")));
+                        "Error de conexión con el microservicio usuarios. Hable con el administrador"));
             }
         }
     }
