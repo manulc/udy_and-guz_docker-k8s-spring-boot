@@ -52,7 +52,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         final String email = usuario.getEmail();
         return obtenerPorId(id)
                 .map(usuarioDB -> {
-                    System.out.println(email + " " + usuarioDB.getEmail());
                     if(!email.equals(usuarioDB.getEmail()) && obtenerPorEmail(email).isPresent())
                         throw new EmailExistsException(String.format("El email %s ya existe", email));
                     usuario.setId(usuarioDB.getId());

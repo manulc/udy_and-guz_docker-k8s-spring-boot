@@ -149,7 +149,7 @@ public class CursoController {
             default: {
                 ex.printStackTrace();
                 return ResponseEntity.internalServerError().body(Collections.singletonMap("mensaje",
-                        String.format("Error de conexión con el microservicio usuarios. Hable con el administrador")));
+                        "Error de conexión con el microservicio usuarios. Hable con el administrador"));
             }
         }
     }
